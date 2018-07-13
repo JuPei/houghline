@@ -2,15 +2,15 @@
 #include"iostream"
 using namespace cv;
 using namespace std;
-static void  //¾²Ì¬¶¨Òå
+static void  //é™æ€å®šä¹‰
 HoughLineStandard(const Mat& img, float rho, float theta,
 int threshold, std::vector<Vec2f>& lines, int linesMax,
-double min_theta, double max_theta, Point start, Point end);//º¯Êı²ÎÊıÉùÃ÷
+double min_theta, double max_theta, Point start, Point end);//éœå¤«æ ‡å‡†å˜æ¢ï¼Œè¾“å‡ºlineçš„rhoå’Œtheta
 static void
 icvHoughLinesProbabilistic(CvMat* image, Mat& img,
 float rho, float theta, int threshold,
 int lineLength, int lineGap,
-int linesMax, CvPoint start, CvPoint end, vector<vector<Vec4i>> result_lines);
+int linesMax, CvPoint start, CvPoint end, vector<vector<Vec4i>> result_lines);//æ¦‚ç‡éœå¤«å˜æ¢ï¼Œè¾“å‡ºlineçš„ä¸¤ä¸ªç«¯ç‚¹
 struct  LinePolar
 {
 	float rho;
@@ -40,11 +40,11 @@ int main()
 	imwrite("111.jpg", grayImage);
 	Mat edge;
 	Canny(thresholdImage, edge, 50, 200, 3);
-	//¶¨ÒåÊä³öÊı×é£¬ÓÃÓÚ´æ´¢Ö±ÏßµÄ½Ç¶ÈºÍ¾àÀëÕâÁ½¸ö±äÁ¿
+	//å®šä¹‰è¾“å‡ºæ•°ç»„ï¼Œç”¨äºå­˜å‚¨ç›´çº¿çš„è§’åº¦å’Œè·ç¦»è¿™ä¸¤ä¸ªå˜é‡
 	vector<Vec2f> lines;
 
-	//¾àÀë·Ö±æÂÊÎª1£¬½Ç¶È·Ö±æÂÊÎª¦Ğ/180£¬ãĞÖµÎª215
-	//ãĞÖµµÄÑ¡È¡Ö±½ÓÓ°Ïìµ½Êä³öÖ±ÏßµÄÊıÁ¿
+	//è·ç¦»åˆ†è¾¨ç‡ä¸º1ï¼Œè§’åº¦åˆ†è¾¨ç‡ä¸ºÏ€/180ï¼Œé˜ˆå€¼ä¸º215
+	//é˜ˆå€¼çš„é€‰å–ç›´æ¥å½±å“åˆ°è¾“å‡ºç›´çº¿çš„æ•°é‡
 	HoughLineStandard(edge, 1, CV_PI / 180, 650, lines, 20, 0, (CV_PI / 180) * 360, START, END);
 	
     //HoughLines(edge, lines, 1, CV_PI / 180, 150, 0, 0);
@@ -53,11 +53,11 @@ int main()
 		//cout << "rho "<< endl;
 	for (size_t i = 0; i < lines.size(); i++)
 	{
-		//ÌáÈ¡³ö¾àÀëºÍ½Ç¶È
+		//æå–å‡ºè·ç¦»å’Œè§’åº¦
 		float rho = lines[i][0], theta = lines[i][1];
 		//cout << rho << endl;
-		//¶¨ÒåÁ½¸öµã£¬Á½µãÈ·¶¨Ò»ÌõÖ±Ïß
-		//¼ÆËãµÃµ½µÄÁ½µãµÄ×ø±êÎª£¨¦Ñcos¦È-1000sin¦È£¬¦Ñsin¦È+1000cos¦È£©£¬£¨¦Ñcos¦È+1000sin¦È£¬¦Ñsin¦È-1000cos¦È£©
+		//å®šä¹‰ä¸¤ä¸ªç‚¹ï¼Œä¸¤ç‚¹ç¡®å®šä¸€æ¡ç›´çº¿
+		//è®¡ç®—å¾—åˆ°çš„ä¸¤ç‚¹çš„åæ ‡ä¸ºï¼ˆÏcosÎ¸-1000sinÎ¸ï¼ŒÏsinÎ¸+1000cosÎ¸ï¼‰ï¼Œï¼ˆÏcosÎ¸+1000sinÎ¸ï¼ŒÏsinÎ¸-1000cosÎ¸ï¼‰
 		Point pt1, pt2;
 		double a = cos(theta), b = sin(theta);
 		double x0 = a*rho, y0 = b*rho;
@@ -72,7 +72,7 @@ int main()
 		}
 		pt2.y = 1200;
 		pt2.x = cvRound(rho - 1200 * b);	
-		//ÔÚÔ­Í¼ÉÏ»­¿í´øÎª2µÄºìÏß
+		//åœ¨åŸå›¾ä¸Šç”»å®½å¸¦ä¸º2çš„çº¢çº¿
 		line(src, pt1, pt2, Scalar(0, 0, 255), 1);
 		imwrite("11.jpg", src);
 	}
@@ -83,68 +83,68 @@ int main()
 	cin.get();
 	return 1;
 }
-static void  //¾²Ì¬¶¨Òå
+static void  //é™æ€å®šä¹‰
 HoughLineStandard(const Mat& img, float rho, float theta,
 int threshold, std::vector<Vec2f>& lines, int linesMax,
-double min_theta, double max_theta,Point start,Point end)//º¯Êı²ÎÊıÉùÃ÷
+double min_theta, double max_theta,Point start,Point end)//å‡½æ•°å‚æ•°å£°æ˜
 {
-	int i, j;//iÎªĞĞ£¬jÎªÁĞ
-	float irho = 1 / rho;//µ¥Î»¦ÑµÄµ¹Êı
+	int i, j;//iä¸ºè¡Œï¼Œjä¸ºåˆ—
+	float irho = 1 / rho;//å•ä½Ïçš„å€’æ•°
 
-	CV_Assert(img.type() == CV_8UC1);//¼ì²éÍ¼Æ¬ÊÇ²»ÊÇµ¥Í¨µÀ8bitÍ¼Ïñ
+	CV_Assert(img.type() == CV_8UC1);//æ£€æŸ¥å›¾ç‰‡æ˜¯ä¸æ˜¯å•é€šé“8bitå›¾åƒ
 
-	const uchar* image = img.ptr();//¶ÁÈ¡Í¼Æ¬
-	int step = (int)img.step;//Í¼Æ¬Ã¿ĞĞÏñËØËùÕ¼×Ö½Ú
-	int width = img.cols;//Í¼Æ¬¿í¶È
-	int height = img.rows;//Í¼Æ¬¸ß¶È
+	const uchar* image = img.ptr();//è¯»å–å›¾ç‰‡
+	int step = (int)img.step;//å›¾ç‰‡æ¯è¡Œåƒç´ æ‰€å å­—èŠ‚
+	int width = img.cols;//å›¾ç‰‡å®½åº¦
+	int height = img.rows;//å›¾ç‰‡é«˜åº¦
 
 	if (max_theta < min_theta) {
 		CV_Error(CV_StsBadArg, "max_theta must be greater than min_theta");
-	}//Èç¹û¸ßãĞÖµĞ¡ÓÚµÍãĞÖµÌáÊ¾´íÎó
-	int numangle = cvRound((max_theta - min_theta) / theta);//²ÎÊı¿Õ¼ä¦È¸öÊı
-	int numrho = cvRound(((width + height) * 2 + 1) / rho);//²ÎÊı¿Õ¼ä¦Ñ¸öÊı
+	}//å¦‚æœé«˜é˜ˆå€¼å°äºä½é˜ˆå€¼æç¤ºé”™è¯¯
+	int numangle = cvRound((max_theta - min_theta) / theta);//å‚æ•°ç©ºé—´Î¸ä¸ªæ•°
+	int numrho = cvRound(((width + height) * 2 + 1) / rho);//å‚æ•°ç©ºé—´Ïä¸ªæ•°
 	int*accum = new int[(numangle + 2) * (numrho + 2)]();
 	std::vector<int> _sort_buf;
 	float*sinTab = new float[numangle]();
 	float*cosTab = new float[numangle]();
 
-	float ang = static_cast<float>(min_theta);//angÎª×îĞ¡¦È,ÀàĞÍÎªfloat
-	for (int n = 0; n < numangle; ang += theta, n++)//¶Ô²ÎÊı¿Õ¼äÃ¿¸ö¦È
+	float ang = static_cast<float>(min_theta);//angä¸ºæœ€å°Î¸,ç±»å‹ä¸ºfloat
+	for (int n = 0; n < numangle; ang += theta, n++)//å¯¹å‚æ•°ç©ºé—´æ¯ä¸ªÎ¸
 	{
-		sinTab[n] = (float)(sin((double)ang) * irho);//×öºÃtabSinÊı×é
-		cosTab[n] = (float)(cos((double)ang) * irho);//×öºÃtabCosÊı×é
+		sinTab[n] = (float)(sin((double)ang) * irho);//åšå¥½tabSinæ•°ç»„
+		cosTab[n] = (float)(cos((double)ang) * irho);//åšå¥½tabCosæ•°ç»„
 		//if (cosTab[n] == 0)
 			//cout << "no";
 	}
 	for (i = start.y; i < end.y; i++)
-		for (j = start.x; j < end.y; j++)//¶ÔÓÚÔÚÍ¼ÄÚµÄµã
+		for (j = start.x; j < end.y; j++)//å¯¹äºåœ¨å›¾å†…çš„ç‚¹
 		{
-		if (image[i * step + j] != 0)//Èç¹û¶şÖµÍ¼Ïñ·Ç0µã
+		if (image[i * step + j] != 0)//å¦‚æœäºŒå€¼å›¾åƒé0ç‚¹
 			for (int n = 0; n < numangle; n++)
 
 			{
 			int r = cvRound(j * cosTab[n] + i * sinTab[n]);
 			// 
-			r += (numrho - 1) / 2;//¾àÀëÆ«ÒÆÒ»°ë£¬¦ÑÓĞ¸ºÖµ£¬·ÀÖ¹Éú³ÉµÄË÷Òı²úÉú¸²¸Ç
-			accum[(n + 1) * (numrho + 2) + r + 1]++;//ÀÛ¼ÓÆ÷ÏàÓ¦µ¥Ôª+1
-			//n+1ÊÇ°ÑµÚÒ»ĞĞ¿Õ³ö
-			//r+1ÊÇ°ÑµÚÒ»ÁĞ¿Õ³ö
-			//¿Õ³öÊÇ·ÀÖ¹ÁÚÓò±È½ÏÊ±Òç³ö
-			//numrho+2ÊÇ×ÜÁĞÊı
+			r += (numrho - 1) / 2;//è·ç¦»åç§»ä¸€åŠï¼ŒÏæœ‰è´Ÿå€¼ï¼Œé˜²æ­¢ç”Ÿæˆçš„ç´¢å¼•äº§ç”Ÿè¦†ç›–
+			accum[(n + 1) * (numrho + 2) + r + 1]++;//ç´¯åŠ å™¨ç›¸åº”å•å…ƒ+1
+			//n+1æ˜¯æŠŠç¬¬ä¸€è¡Œç©ºå‡º
+			//r+1æ˜¯æŠŠç¬¬ä¸€åˆ—ç©ºå‡º
+			//ç©ºå‡ºæ˜¯é˜²æ­¢é‚»åŸŸæ¯”è¾ƒæ—¶æº¢å‡º
+			//numrho+2æ˜¯æ€»åˆ—æ•°
 			}
 		}
 	// stage 2. find local maximums
 	for (int r = 0; r < numrho; r++)
 		for (int n = 0; n < numangle; n++)
 		{
-		int base = (n + 1) * (numrho + 2) + r + 1;//ÀÛ¼ÓÆ÷¿Õ¼äµÄË÷Òı
+		int base = (n + 1) * (numrho + 2) + r + 1;//ç´¯åŠ å™¨ç©ºé—´çš„ç´¢å¼•
 
 		if (accum[base] > threshold &&
 			accum[base] > accum[base - 1] && accum[base] >= accum[base + 1] &&
 			accum[base] > accum[base - numrho - 2] && accum[base] >= accum[base + numrho + 2])
-			_sort_buf.push_back(base);//±È½Ï4ÁÚÓòÀÛ¼ÓÆ÷ÖĞÖµµÄ´óĞ¡
+			_sort_buf.push_back(base);//æ¯”è¾ƒ4é‚»åŸŸç´¯åŠ å™¨ä¸­å€¼çš„å¤§å°
 		}
-	std::sort(_sort_buf.begin(), _sort_buf.end());//½µĞòÅÅÁĞ
+	std::sort(_sort_buf.begin(), _sort_buf.end());//é™åºæ’åˆ—
 	//if (_sort_buf.size() == 0)
 		//cout << "no";
 	vector<int>::iterator it = _sort_buf.begin();
@@ -156,12 +156,12 @@ double min_theta, double max_theta,Point start,Point end)//º¯Êı²ÎÊıÉùÃ÷
 	{
 		LinePolar line;
 		int num = _sort_buf.size();
-		int idx = _sort_buf[num-i-1];//ÅÅĞòºóÀÛ¼ÓÆ÷¿Õ¼äaccumµÄĞòÁĞºÅ
-		int n = cvFloor(idx*scale) - 1;//»ñµÃĞĞÊı
-		int r = idx - (n + 1)*(numrho + 2) - 1;//»ñµÃÁĞÊı
-		line.rho = (r - (numrho - 1)*0.5f) * rho;//¦Ñ
-		line.angle = static_cast<float>(min_theta)+n * theta;//¦È
-		lines.push_back(Vec2f(line.rho, line.angle));//Ö±ÏßÒÔ(¦Ñ,¦È)×°µ½linesÖĞ
+		int idx = _sort_buf[num-i-1];//æ’åºåç´¯åŠ å™¨ç©ºé—´accumçš„åºåˆ—å·
+		int n = cvFloor(idx*scale) - 1;//è·å¾—è¡Œæ•°
+		int r = idx - (n + 1)*(numrho + 2) - 1;//è·å¾—åˆ—æ•°
+		line.rho = (r - (numrho - 1)*0.5f) * rho;//Ï
+		line.angle = static_cast<float>(min_theta)+n * theta;//Î¸
+		lines.push_back(Vec2f(line.rho, line.angle));//ç›´çº¿ä»¥(Ï,Î¸)è£…åˆ°linesä¸­
 	}
 	delete[]sinTab;
 	delete[]cosTab;
@@ -174,116 +174,116 @@ int lineLength, int lineGap,
 int linesMax, CvPoint start, CvPoint end, vector<vector<Vec4i>> result_lines)
 {
 	//CvSeq *lines;
-	//accumÎªÀÛ¼ÓÆ÷¾ØÕó£¬maskÎªÑÚÂë¾ØÕó
+	//accumä¸ºç´¯åŠ å™¨çŸ©é˜µï¼Œmaskä¸ºæ©ç çŸ©é˜µ
 	cv::Mat accum, mask;
-	cv::vector<float> sin_cos_tab;    //ÓÃÓÚ´æ´¢ÊÂÏÈ¼ÆËãºÃµÄÕıÏÒºÍÓàÏÒÖµ
-	//¿ª±ÙÒ»¶ÎÄÚ´æ¿Õ¼ä
+	cv::vector<float> sin_cos_tab;    //ç”¨äºå­˜å‚¨äº‹å…ˆè®¡ç®—å¥½çš„æ­£å¼¦å’Œä½™å¼¦å€¼
+	//å¼€è¾Ÿä¸€æ®µå†…å­˜ç©ºé—´
 	cv::MemStorage storage(cvCreateMemStorage(0));
-	//ÓÃÓÚ´æ´¢ÌØÕ÷µã×ø±ê£¬¼´±ßÔµÏñËØµÄÎ»ÖÃ
+	//ç”¨äºå­˜å‚¨ç‰¹å¾ç‚¹åæ ‡ï¼Œå³è¾¹ç¼˜åƒç´ çš„ä½ç½®
 	CvSeq* seq;
 	CvSeqWriter writer;
-	int width, height;    //Í¼ÏñµÄ¿íºÍ¸ß
-	int numangle, numrho;    //½Ç¶ÈºÍ¾àÀëµÄÀëÉ¢ÊıÁ¿
+	int width, height;    //å›¾åƒçš„å®½å’Œé«˜
+	int numangle, numrho;    //è§’åº¦å’Œè·ç¦»çš„ç¦»æ•£æ•°é‡
 	float ang;
 	int r, n, count;
 	CvPoint pt;
-	float irho = 1 / rho;    //¾àÀë·Ö±æÂÊµÄµ¹Êı
-	CvRNG rng = cvRNG(-1);    //Ëæ»úÊı
-	const float* psin_cos_tab;    //ÏòÁ¿trigtabµÄµØÖ·Ö¸Õë
-	uchar* pmask;    //¾ØÕómaskµÄµØÖ·Ö¸Õë
-	//È·±£ÊäÈëÍ¼ÏñµÄÕıÈ·ĞÔ
+	float irho = 1 / rho;    //è·ç¦»åˆ†è¾¨ç‡çš„å€’æ•°
+	CvRNG rng = cvRNG(-1);    //éšæœºæ•°
+	const float* psin_cos_tab;    //å‘é‡trigtabçš„åœ°å€æŒ‡é’ˆ
+	uchar* pmask;    //çŸ©é˜µmaskçš„åœ°å€æŒ‡é’ˆ
+	//ç¡®ä¿è¾“å…¥å›¾åƒçš„æ­£ç¡®æ€§
 	CV_Assert(CV_IS_MAT(image) && CV_MAT_TYPE(image->type) == CV_8UC1);
 
-	width = image->cols;    //ÌáÈ¡³öÊäÈëÍ¼ÏñµÄ¿í
-	height = image->rows;    //ÌáÈ¡³öÊäÈëÍ¼ÏñµÄ¸ß
-	//ÓÉ½Ç¶ÈºÍ¾àÀë·Ö±æÂÊ£¬µÃµ½½Ç¶ÈºÍ¾àÀëµÄÀëÉ¢ÊıÁ¿
+	width = image->cols;    //æå–å‡ºè¾“å…¥å›¾åƒçš„å®½
+	height = image->rows;    //æå–å‡ºè¾“å…¥å›¾åƒçš„é«˜
+	//ç”±è§’åº¦å’Œè·ç¦»åˆ†è¾¨ç‡ï¼Œå¾—åˆ°è§’åº¦å’Œè·ç¦»çš„ç¦»æ•£æ•°é‡
 	numangle = cvRound(CV_PI / theta);
 	numrho = cvRound(((width + height) * 2 + 1) / rho);
-	//´´½¨ÀÛ¼ÓÆ÷¾ØÕó£¬¼´»ô·ò¿Õ¼ä
+	//åˆ›å»ºç´¯åŠ å™¨çŸ©é˜µï¼Œå³éœå¤«ç©ºé—´
 	accum.create(numangle, numrho, CV_32SC1);
-	//´´½¨ÑÚÂë¾ØÕó£¬´óĞ¡ÓëÊäÈëÍ¼ÏñÏàÍ¬
+	//åˆ›å»ºæ©ç çŸ©é˜µï¼Œå¤§å°ä¸è¾“å…¥å›¾åƒç›¸åŒ
 	mask.create(height, width, CV_8UC1);
-	//¶¨ÒåtrigtabµÄ´óĞ¡£¬ÒòÎªÒª´æ´¢ÕıÏÒºÍÓàÏÒÖµ£¬ËùÒÔ³¤¶ÈÎª½Ç¶ÈÀëÉ¢ÊıµÄ2±¶
+	//å®šä¹‰trigtabçš„å¤§å°ï¼Œå› ä¸ºè¦å­˜å‚¨æ­£å¼¦å’Œä½™å¼¦å€¼ï¼Œæ‰€ä»¥é•¿åº¦ä¸ºè§’åº¦ç¦»æ•£æ•°çš„2å€
 	sin_cos_tab.resize(numangle * 2);
-	//ÀÛ¼ÓÆ÷¾ØÕóÇåÁã
+	//ç´¯åŠ å™¨çŸ©é˜µæ¸…é›¶
 	accum = cv::Scalar(0);
-	//±ÜÃâÖØ¸´¼ÆËã£¬ÊÂÏÈ¼ÆËãºÃËùĞèµÄËùÓĞÕıÏÒºÍÓàÏÒÖµ
+	//é¿å…é‡å¤è®¡ç®—ï¼Œäº‹å…ˆè®¡ç®—å¥½æ‰€éœ€çš„æ‰€æœ‰æ­£å¼¦å’Œä½™å¼¦å€¼
 	for (ang = 0, n = 0; n < numangle; ang += theta, n++)
 	{
 		sin_cos_tab[n * 2] = (float)(cos(ang) * irho);
 		sin_cos_tab[n * 2 + 1] = (float)(sin(ang) * irho);
 	}
-	//¸³ÖµÊ×µØÖ·
+	//èµ‹å€¼é¦–åœ°å€
 	psin_cos_tab = &sin_cos_tab[0];
 	pmask = mask.data;
-	//¿ªÊ¼Ğ´ÈëĞòÁĞ
+	//å¼€å§‹å†™å…¥åºåˆ—
 	cvStartWriteSeq(CV_32SC2, sizeof(CvSeq), sizeof(CvPoint), storage, &writer);
 
 	// stage 1. collect non-zero image points
-	//ÊÕ¼¯Í¼ÏñÖĞµÄËùÓĞ·ÇÁãµã£¬ÒòÎªÊäÈëÍ¼ÏñÊÇ±ßÔµÍ¼Ïñ£¬ËùÒÔ·ÇÁãµã¾ÍÊÇ±ßÔµµã
+	//æ”¶é›†å›¾åƒä¸­çš„æ‰€æœ‰éé›¶ç‚¹ï¼Œå› ä¸ºè¾“å…¥å›¾åƒæ˜¯è¾¹ç¼˜å›¾åƒï¼Œæ‰€ä»¥éé›¶ç‚¹å°±æ˜¯è¾¹ç¼˜ç‚¹
 	for (pt.y=start.y, count = 0; pt.y < end.y; pt.y++)
 	{
-		//ÌáÈ¡³öÊäÈëÍ¼ÏñºÍÑÚÂë¾ØÕóµÄÃ¿ĞĞµØÖ·Ö¸Õë
+		//æå–å‡ºè¾“å…¥å›¾åƒå’Œæ©ç çŸ©é˜µçš„æ¯è¡Œåœ°å€æŒ‡é’ˆ
 		const uchar* data = image->data.ptr + pt.y*image->step;
 		uchar* mdata = pmask + pt.y*width;
 		for (pt.x = start.x; pt.x < end.x; pt.x++)
 		{
-			if (data[pt.x])    //ÊÇ±ßÔµµã
+			if (data[pt.x])    //æ˜¯è¾¹ç¼˜ç‚¹
 			{
-				mdata[pt.x] = (uchar)1;    //ÑÚÂëµÄÏàÓ¦Î»ÖÃÖÃ1
-				CV_WRITE_SEQ_ELEM(pt, writer);    //°Ñ¸Ã×ø±êÎ»ÖÃĞ´ÈëĞòÁĞ
+				mdata[pt.x] = (uchar)1;    //æ©ç çš„ç›¸åº”ä½ç½®ç½®1
+				CV_WRITE_SEQ_ELEM(pt, writer);    //æŠŠè¯¥åæ ‡ä½ç½®å†™å…¥åºåˆ—
 			}
-			else    //²»ÊÇ±ßÔµµã
-				mdata[pt.x] = 0;    //ÑÚÂëµÄÏàÓ¦Î»ÖÃÇå0
+			else    //ä¸æ˜¯è¾¹ç¼˜ç‚¹
+				mdata[pt.x] = 0;    //æ©ç çš„ç›¸åº”ä½ç½®æ¸…0
 		}
 	}
-	//ÖÕÖ¹Ğ´ĞòÁĞ£¬seqÎªËùÓĞ±ßÔµµã×ø±êÎ»ÖÃµÄĞòÁĞ
+	//ç»ˆæ­¢å†™åºåˆ—ï¼Œseqä¸ºæ‰€æœ‰è¾¹ç¼˜ç‚¹åæ ‡ä½ç½®çš„åºåˆ—
 	seq = cvEndWriteSeq(&writer);
-	count = seq->total;    //µÃµ½±ßÔµµãµÄÊıÁ¿
+	count = seq->total;    //å¾—åˆ°è¾¹ç¼˜ç‚¹çš„æ•°é‡
 
 	// stage 2. process all the points in random order
-	//Ëæ»ú´¦ÀíËùÓĞµÄ±ßÔµµã
+	//éšæœºå¤„ç†æ‰€æœ‰çš„è¾¹ç¼˜ç‚¹
 	for (; count > 0; count--)
 	{
 		// choose random point out of the remaining ones
-		//²½Öè1£¬ÔÚÊ£ÏÂµÄ±ßÔµµãÖĞËæ»úÑ¡ÔñÒ»¸öµã£¬idxÎª²»´óÓÚcountµÄËæ»úÊı
+		//æ­¥éª¤1ï¼Œåœ¨å‰©ä¸‹çš„è¾¹ç¼˜ç‚¹ä¸­éšæœºé€‰æ‹©ä¸€ä¸ªç‚¹ï¼Œidxä¸ºä¸å¤§äºcountçš„éšæœºæ•°
 		int idx = cvRandInt(&rng) % count;
-		//max_valÎªÀÛ¼ÓÆ÷µÄ×î´óÖµ£¬max_nÎª×î´óÖµËù¶ÔÓ¦µÄ½Ç¶È
+		//max_valä¸ºç´¯åŠ å™¨çš„æœ€å¤§å€¼ï¼Œmax_nä¸ºæœ€å¤§å€¼æ‰€å¯¹åº”çš„è§’åº¦
 		int max_val = threshold - 1, max_n = 0;
-		//ÓÉËæ»úÊıidxÔÚĞòÁĞÖĞÌáÈ¡³öËù¶ÔÓ¦µÄ×ø±êµã
+		//ç”±éšæœºæ•°idxåœ¨åºåˆ—ä¸­æå–å‡ºæ‰€å¯¹åº”çš„åæ ‡ç‚¹
 		CvPoint* point = (CvPoint*)cvGetSeqElem(seq, idx);
-		//¶¨ÒåÖ±ÏßµÄÁ½¸ö¶Ëµã
+		//å®šä¹‰ç›´çº¿çš„ä¸¤ä¸ªç«¯ç‚¹
 		CvPoint line_end[2] = { { 0, 0 }, { 0, 0 } };
 		float a, b;
-		//ÀÛ¼ÓÆ÷µÄµØÖ·Ö¸Õë£¬Ò²¾ÍÊÇ»ô·ò¿Õ¼äµÄµØÖ·Ö¸Õë
+		//ç´¯åŠ å™¨çš„åœ°å€æŒ‡é’ˆï¼Œä¹Ÿå°±æ˜¯éœå¤«ç©ºé—´çš„åœ°å€æŒ‡é’ˆ
 		int* adata = (int*)accum.data;
 		int i, j, k, x0, y0, dx0, dy0, xflag;
 		int good_line;
 		const int shift = 16;
-		//ÌáÈ¡³ö×ø±êµãµÄºá¡¢×İ×ø±ê
+		//æå–å‡ºåæ ‡ç‚¹çš„æ¨ªã€çºµåæ ‡
 		i = point->y;
 		j = point->x;
 
 		// "remove" it by overriding it with the last element
-		//ÓÃĞòÁĞÖĞµÄ×îºóÒ»¸öÔªËØ¸²¸Çµô¸Õ²ÅÌáÈ¡³öÀ´µÄËæ»ú×ø±êµã
-		*point = *(CvPoint*)cvGetSeqElem(seq, count - 1);//½«Õâ´ÎÑ­»·±»Ñ¡ÖĞµÄµãÔÚÏÂÒ»´ÎËæ»úÖĞÅÅ³ı
+		//ç”¨åºåˆ—ä¸­çš„æœ€åä¸€ä¸ªå…ƒç´ è¦†ç›–æ‰åˆšæ‰æå–å‡ºæ¥çš„éšæœºåæ ‡ç‚¹
+		*point = *(CvPoint*)cvGetSeqElem(seq, count - 1);//å°†è¿™æ¬¡å¾ªç¯è¢«é€‰ä¸­çš„ç‚¹åœ¨ä¸‹ä¸€æ¬¡éšæœºä¸­æ’é™¤
 
 		// check if it has been excluded already (i.e. belongs to some other line)
-		//¼ì²âÕâ¸ö×ø±êµãÊÇ·ñÒÑ¾­¼ÆËã¹ı£¬Ò²¾ÍÊÇËüÒÑ¾­ÊôÓÚÆäËûÖ±Ïß
-		//ÒòÎª¼ÆËã¹ıµÄ×ø±êµã»áÔÚÑÚÂë¾ØÕómaskµÄÏà¶ÔÓ¦Î»ÖÃÇåÁã
-		if (!pmask[i*width + j])    //¸Ã×ø±êµã±»´¦Àí¹ı
-			continue;    //²»×öÈÎºÎ´¦Àí£¬¼ÌĞøÖ÷Ñ­»·
+		//æ£€æµ‹è¿™ä¸ªåæ ‡ç‚¹æ˜¯å¦å·²ç»è®¡ç®—è¿‡ï¼Œä¹Ÿå°±æ˜¯å®ƒå·²ç»å±äºå…¶ä»–ç›´çº¿
+		//å› ä¸ºè®¡ç®—è¿‡çš„åæ ‡ç‚¹ä¼šåœ¨æ©ç çŸ©é˜µmaskçš„ç›¸å¯¹åº”ä½ç½®æ¸…é›¶
+		if (!pmask[i*width + j])    //è¯¥åæ ‡ç‚¹è¢«å¤„ç†è¿‡
+			continue;    //ä¸åšä»»ä½•å¤„ç†ï¼Œç»§ç»­ä¸»å¾ªç¯
 
 		// update accumulator, find the most probable line
-		//²½Öè2£¬¸üĞÂÀÛ¼ÓÆ÷¾ØÕó£¬ÕÒµ½×îÓĞ¿ÉÄÜµÄÖ±Ïß
+		//æ­¥éª¤2ï¼Œæ›´æ–°ç´¯åŠ å™¨çŸ©é˜µï¼Œæ‰¾åˆ°æœ€æœ‰å¯èƒ½çš„ç›´çº¿
 		for (n = 0; n < numangle; n++, adata += numrho)
 		{
-			//ÓÉ½Ç¶È¼ÆËã¾àÀë
+			//ç”±è§’åº¦è®¡ç®—è·ç¦»
 			r = cvRound(j * psin_cos_tab[n * 2] + i * psin_cos_tab[n * 2 + 1]);
 			r += (numrho - 1) / 2;
-			//ÔÚÀÛ¼ÓÆ÷¾ØÕóµÄÏàÓ¦Î»ÖÃÉÏÊıÖµ¼Ó1£¬²¢¸³Öµ¸øval
+			//åœ¨ç´¯åŠ å™¨çŸ©é˜µçš„ç›¸åº”ä½ç½®ä¸Šæ•°å€¼åŠ 1ï¼Œå¹¶èµ‹å€¼ç»™val
 			int val = ++adata[r];
-			//¸üĞÂ×î´óÖµ£¬²¢µÃµ½ËüµÄ½Ç¶È
+			//æ›´æ–°æœ€å¤§å€¼ï¼Œå¹¶å¾—åˆ°å®ƒçš„è§’åº¦
 			if (max_val < val)
 			{
 				max_val = val;
@@ -292,54 +292,54 @@ int linesMax, CvPoint start, CvPoint end, vector<vector<Vec4i>> result_lines)
 		}
 
 		// if it is too "weak" candidate, continue with another point
-		//²½Öè3£¬Èç¹ûÉÏÃæµÃµ½µÄ×î´óÖµĞ¡ÓÚãĞÖµ£¬Ôò·ÅÆú¸Ãµã£¬¼ÌĞøÏÂÒ»¸öµãµÄ¼ÆËã
+		//æ­¥éª¤3ï¼Œå¦‚æœä¸Šé¢å¾—åˆ°çš„æœ€å¤§å€¼å°äºé˜ˆå€¼ï¼Œåˆ™æ”¾å¼ƒè¯¥ç‚¹ï¼Œç»§ç»­ä¸‹ä¸€ä¸ªç‚¹çš„è®¡ç®—
 		if (max_val < threshold)
 			continue;
 
 		// from the current point walk in each direction
 		// along the found line and extract the line segment
-		//²½Öè4£¬´Óµ±Ç°µã³ö·¢£¬ÑØ×ÅËüËùÔÚÖ±ÏßµÄ·½ÏòÇ°½ø£¬Ö±µ½´ïµ½¶ËµãÎªÖ¹
-		a = -psin_cos_tab[max_n * 2 + 1];    //a=-sin¦È
-		b = psin_cos_tab[max_n * 2];    //b=cos¦È
-		//µ±Ç°µãµÄºá¡¢×İ×ø±êÖµ
+		//æ­¥éª¤4ï¼Œä»å½“å‰ç‚¹å‡ºå‘ï¼Œæ²¿ç€å®ƒæ‰€åœ¨ç›´çº¿çš„æ–¹å‘å‰è¿›ï¼Œç›´åˆ°è¾¾åˆ°ç«¯ç‚¹ä¸ºæ­¢
+		a = -psin_cos_tab[max_n * 2 + 1];    //a=-sinÎ¸
+		b = psin_cos_tab[max_n * 2];    //b=cosÎ¸
+		//å½“å‰ç‚¹çš„æ¨ªã€çºµåæ ‡å€¼
 		x0 = j;
 		y0 = i;
-		//È·¶¨µ±Ç°µãËùÔÚÖ±ÏßµÄ½Ç¶ÈÊÇÔÚ45¶È¡«135¶ÈÖ®¼ä£¬»¹ÊÇÔÚ0¡«45»ò135¶È¡«180¶ÈÖ®¼ä
-		if (fabs(a) > fabs(b))    //ÔÚ45¶È¡«135¶ÈÖ®¼ä
+		//ç¡®å®šå½“å‰ç‚¹æ‰€åœ¨ç›´çº¿çš„è§’åº¦æ˜¯åœ¨45åº¦ï½135åº¦ä¹‹é—´ï¼Œè¿˜æ˜¯åœ¨0ï½45æˆ–135åº¦ï½180åº¦ä¹‹é—´
+		if (fabs(a) > fabs(b))    //åœ¨45åº¦ï½135åº¦ä¹‹é—´
 		{
-			xflag = 1;    //ÖÃ±êÊ¶Î»£¬±êÊ¶Ö±ÏßµÄ´ÖÂÔ·½Ïò
-			//È·¶¨ºá¡¢×İ×ø±êµÄÎ»ÒÆÁ¿
+			xflag = 1;    //ç½®æ ‡è¯†ä½ï¼Œæ ‡è¯†ç›´çº¿çš„ç²—ç•¥æ–¹å‘
+			//ç¡®å®šæ¨ªã€çºµåæ ‡çš„ä½ç§»é‡
 			dx0 = a > 0 ? 1 : -1;
 			dy0 = cvRound(b*(1 << shift) / fabs(a));
-			//È·¶¨×İ×ø±ê
+			//ç¡®å®šçºµåæ ‡
 			y0 = (y0 << shift) + (1 << (shift - 1));
 		}
-		else    //ÔÚ0¡«45»ò135¶È¡«180¶ÈÖ®¼ä
+		else    //åœ¨0ï½45æˆ–135åº¦ï½180åº¦ä¹‹é—´
 		{
-			xflag = 0;   //Çå±êÊ¶Î»
-			//È·¶¨ºá¡¢×İ×ø±êµÄÎ»ÒÆÁ¿
+			xflag = 0;   //æ¸…æ ‡è¯†ä½
+			//ç¡®å®šæ¨ªã€çºµåæ ‡çš„ä½ç§»é‡
 			dy0 = b > 0 ? 1 : -1;
 			dx0 = cvRound(a*(1 << shift) / fabs(b));
-			//È·¶¨ºá×ø±ê
+			//ç¡®å®šæ¨ªåæ ‡
 			x0 = (x0 << shift) + (1 << (shift - 1));
 		}
-		//ËÑË÷Ö±ÏßµÄÁ½¸ö¶Ëµã
+		//æœç´¢ç›´çº¿çš„ä¸¤ä¸ªç«¯ç‚¹
 		for (k = 0; k < 2; k++)
 		{
-			//gap±íÊ¾Á½ÌõÖ±ÏßµÄ¼äÏ¶£¬xºÍyÎªËÑË÷Î»ÖÃ£¬dxºÍdyÎªÎ»ÒÆÁ¿
+			//gapè¡¨ç¤ºä¸¤æ¡ç›´çº¿çš„é—´éš™ï¼Œxå’Œyä¸ºæœç´¢ä½ç½®ï¼Œdxå’Œdyä¸ºä½ç§»é‡
 			int gap = 0, x = x0, y = y0, dx = dx0, dy = dy0;
-			//ËÑË÷µÚ¶ş¸ö¶ËµãµÄÊ±ºò£¬·´·½ÏòÎ»ÒÆ
+			//æœç´¢ç¬¬äºŒä¸ªç«¯ç‚¹çš„æ—¶å€™ï¼Œåæ–¹å‘ä½ç§»
 			if (k > 0)
 				dx = -dx, dy = -dy;
 
 			// walk along the line using fixed-point arithmetics,
 			// stop at the image border or in case of too big gap
-			//ÑØ×ÅÖ±ÏßµÄ·½ÏòÎ»ÒÆ£¬Ö±µ½µ½´ïÍ¼ÏñµÄ±ß½ç»ò´óµÄ¼äÏ¶ÎªÖ¹
+			//æ²¿ç€ç›´çº¿çš„æ–¹å‘ä½ç§»ï¼Œç›´åˆ°åˆ°è¾¾å›¾åƒçš„è¾¹ç•Œæˆ–å¤§çš„é—´éš™ä¸ºæ­¢
 			for (;; x += dx, y += dy)
 			{
 				uchar* mdata;
 				int i1, j1;
-				//È·¶¨ĞÂµÄÎ»ÒÆºóµÄ×ø±êÎ»ÖÃ
+				//ç¡®å®šæ–°çš„ä½ç§»åçš„åæ ‡ä½ç½®
 				if (xflag)
 				{
 					j1 = x;
@@ -350,34 +350,34 @@ int linesMax, CvPoint start, CvPoint end, vector<vector<Vec4i>> result_lines)
 					j1 = x >> shift;
 					i1 = y;
 				}
-				//Èç¹ûµ½´ïÁËÍ¼ÏñµÄ±ß½ç£¬Í£Ö¹Î»ÒÆ£¬ÍË³öÑ­»·
+				//å¦‚æœåˆ°è¾¾äº†å›¾åƒçš„è¾¹ç•Œï¼Œåœæ­¢ä½ç§»ï¼Œé€€å‡ºå¾ªç¯
 				if (j1 < 0 || j1 >= width || i1 < 0 || i1 >= height)
 					break;
-				//¶¨Î»Î»ÒÆºóÑÚÂë¾ØÕóÎ»ÖÃ
+				//å®šä½ä½ç§»åæ©ç çŸ©é˜µä½ç½®
 				mdata = pmask + i1*width + j1;
 
 				// for each non-zero point:
 				//    update line end,
 				//    clear the mask element
 				//    reset the gap
-				//¸ÃÑÚÂë²»Îª0£¬ËµÃ÷¸Ãµã¿ÉÄÜÊÇÔÚÖ±ÏßÉÏ
+				//è¯¥æ©ç ä¸ä¸º0ï¼Œè¯´æ˜è¯¥ç‚¹å¯èƒ½æ˜¯åœ¨ç›´çº¿ä¸Š
 				if (*mdata)
 				{
-					gap = 0;    //ÉèÖÃ¼äÏ¶Îª0
-					//¸üĞÂÖ±ÏßµÄ¶ËµãÎ»ÖÃ
+					gap = 0;    //è®¾ç½®é—´éš™ä¸º0
+					//æ›´æ–°ç›´çº¿çš„ç«¯ç‚¹ä½ç½®
 					line_end[k].y = i1;
 					line_end[k].x = j1;
 				}
-				//ÑÚÂëÎª0£¬ËµÃ÷²»ÊÇÖ±Ïß£¬µ«ÈÔ¼ÌĞøÎ»ÒÆ£¬Ö±µ½¼äÏ¶´óÓÚËùÉèÖÃµÄãĞÖµÎªÖ¹
-				else if (++gap > lineGap)    //¼äÏ¶¼Ó1
+				//æ©ç ä¸º0ï¼Œè¯´æ˜ä¸æ˜¯ç›´çº¿ï¼Œä½†ä»ç»§ç»­ä½ç§»ï¼Œç›´åˆ°é—´éš™å¤§äºæ‰€è®¾ç½®çš„é˜ˆå€¼ä¸ºæ­¢
+				else if (++gap > lineGap)    //é—´éš™åŠ 1
 					break;
 			}
 		}
-		//²½Öè5£¬ÓÉ¼ì²âµ½µÄÖ±ÏßµÄÁ½¸ö¶Ëµã´ÖÂÔ¼ÆËãÖ±ÏßµÄ³¤¶È
-		//µ±Ö±Ïß³¤¶È´óÓÚËùÉèÖÃµÄãĞÖµÊ±£¬good_lineÎª1£¬·ñÔòÎª0
+		//æ­¥éª¤5ï¼Œç”±æ£€æµ‹åˆ°çš„ç›´çº¿çš„ä¸¤ä¸ªç«¯ç‚¹ç²—ç•¥è®¡ç®—ç›´çº¿çš„é•¿åº¦
+		//å½“ç›´çº¿é•¿åº¦å¤§äºæ‰€è®¾ç½®çš„é˜ˆå€¼æ—¶ï¼Œgood_lineä¸º1ï¼Œå¦åˆ™ä¸º0
 		good_line = abs(line_end[1].x - line_end[0].x) >= lineLength ||
 			abs(line_end[1].y - line_end[0].y) >= lineLength;
-		//ÔÙ´ÎËÑË÷¶Ëµã£¬Ä¿µÄÊÇ¸üĞÂÀÛ¼ÓÆ÷¾ØÕóºÍ¸üĞÂÑÚÂë¾ØÕó£¬ÒÔ±¸ÏÂÒ»´ÎÑ­»·Ê¹ÓÃ
+		//å†æ¬¡æœç´¢ç«¯ç‚¹ï¼Œç›®çš„æ˜¯æ›´æ–°ç´¯åŠ å™¨çŸ©é˜µå’Œæ›´æ–°æ©ç çŸ©é˜µï¼Œä»¥å¤‡ä¸‹ä¸€æ¬¡å¾ªç¯ä½¿ç”¨
 		for (k = 0; k < 2; k++)
 		{
 			int x = x0, y = y0, dx = dx0, dy = dy0;
@@ -411,36 +411,36 @@ int linesMax, CvPoint start, CvPoint end, vector<vector<Vec4i>> result_lines)
 				//    reset the gap
 				if (*mdata)
 				{
-					//ifÓï¾äµÄ×÷ÓÃÊÇÇå³ıÄÇĞ©ÒÑ¾­ÅĞ¶¨ÊÇºÃµÄÖ±ÏßÉÏµÄµã¶ÔÓ¦µÄÀÛ¼ÓÆ÷µÄÖµ£¬±ÜÃâÔÙ´ÎÀûÓÃÕâĞ©ÀÛ¼ÓÖµ
-					if (good_line)    //ÔÚµÚÒ»´ÎËÑË÷ÖĞÒÑ¾­È·¶¨ÊÇºÃµÄÖ±Ïß
+					//ifè¯­å¥çš„ä½œç”¨æ˜¯æ¸…é™¤é‚£äº›å·²ç»åˆ¤å®šæ˜¯å¥½çš„ç›´çº¿ä¸Šçš„ç‚¹å¯¹åº”çš„ç´¯åŠ å™¨çš„å€¼ï¼Œé¿å…å†æ¬¡åˆ©ç”¨è¿™äº›ç´¯åŠ å€¼
+					if (good_line)    //åœ¨ç¬¬ä¸€æ¬¡æœç´¢ä¸­å·²ç»ç¡®å®šæ˜¯å¥½çš„ç›´çº¿
 					{
-						//µÃµ½ÀÛ¼ÓÆ÷¾ØÕóµØÖ·Ö¸Õë
+						//å¾—åˆ°ç´¯åŠ å™¨çŸ©é˜µåœ°å€æŒ‡é’ˆ
 						adata = (int*)accum.data;
 						for (n = 0; n < numangle; n++, adata += numrho)
 						{
 							r = cvRound(j1 * psin_cos_tab[n * 2] + i1 * psin_cos_tab[n * 2 + 1]);
 							r += (numrho - 1) / 2;
-							adata[r]--;    //ÏàÓ¦µÄÀÛ¼ÓÆ÷¼õ1
+							adata[r]--;    //ç›¸åº”çš„ç´¯åŠ å™¨å‡1
 						}
 					}
-					//ËÑË÷¹ıµÄÎ»ÖÃ£¬²»¹ÜÊÇºÃµÄÖ±Ïß£¬»¹ÊÇ»µµÄÖ±Ïß£¬ÑÚÂëÏàÓ¦Î»ÖÃ¶¼Çå0£¬ÕâÑùÏÂ´Î¾Í²»»áÔÙÖØ¸´ËÑË÷ÕâĞ©Î»ÖÃÁË£¬´Ó¶ø´ïµ½¼õĞ¡¼ÆËã±ßÔµµãµÄÄ¿µÄ
+					//æœç´¢è¿‡çš„ä½ç½®ï¼Œä¸ç®¡æ˜¯å¥½çš„ç›´çº¿ï¼Œè¿˜æ˜¯åçš„ç›´çº¿ï¼Œæ©ç ç›¸åº”ä½ç½®éƒ½æ¸…0ï¼Œè¿™æ ·ä¸‹æ¬¡å°±ä¸ä¼šå†é‡å¤æœç´¢è¿™äº›ä½ç½®äº†ï¼Œä»è€Œè¾¾åˆ°å‡å°è®¡ç®—è¾¹ç¼˜ç‚¹çš„ç›®çš„
 					*mdata = 0;
 				}
-				//Èç¹ûÒÑ¾­µ½´ïÁËÖ±ÏßµÄ¶Ëµã£¬ÔòÍË³öÑ­»·
+				//å¦‚æœå·²ç»åˆ°è¾¾äº†ç›´çº¿çš„ç«¯ç‚¹ï¼Œåˆ™é€€å‡ºå¾ªç¯
 				if (i1 == line_end[k].y && j1 == line_end[k].x)
 					break;
 			}
 		}
-		//Èç¹ûÊÇºÃµÄÖ±Ïß
+		//å¦‚æœæ˜¯å¥½çš„ç›´çº¿
 		if (good_line)
 		{
 			vector<Vec4i> lr = { line_end[0].x, line_end[0].y, line_end[1].x, line_end[1].y };
 			//CvRect lr = { line_end[0].x, line_end[0].y, line_end[1].x, line_end[1].y };
 			line(img, line_end[0], line_end[1], Scalar(0, 0, 255));
 			result_lines.push_back(lr);
-			//°ÑÁ½¸ö¶ËµãÑ¹ÈëĞòÁĞÖĞ
+			//æŠŠä¸¤ä¸ªç«¯ç‚¹å‹å…¥åºåˆ—ä¸­
 			//cvSeqPush(lines, &lr);
-			//Èç¹û¼ì²âµ½µÄÖ±ÏßÊıÁ¿´óÓÚãĞÖµ£¬ÔòÍË³ö¸Ãº¯Êı
+			//å¦‚æœæ£€æµ‹åˆ°çš„ç›´çº¿æ•°é‡å¤§äºé˜ˆå€¼ï¼Œåˆ™é€€å‡ºè¯¥å‡½æ•°
 			//if (lines->total >= linesMax)
 				//return;
 		}
